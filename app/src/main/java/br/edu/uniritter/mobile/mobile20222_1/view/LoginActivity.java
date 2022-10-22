@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -32,6 +34,7 @@ public class LoginActivity extends AppCompatActivity implements LoginPresenterCo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // obtendo o conjunto de SharedPeferences
         SharedPreferences preferences = getPreferences(0);
         boolean sqlUpdated = preferences.getBoolean("sqlUpdated", false);
         boolean logged = preferences.getBoolean("logged", false);
@@ -43,6 +46,13 @@ public class LoginActivity extends AppCompatActivity implements LoginPresenterCo
             User u = UserSQLRepository.getInstance(getActivity()).getUserById(userId);
             if (u != null) {
                 ((TextView) findViewById(R.id.edLogin)).setText(u.getUserLogin());
+                if (logged) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    //intent.putExtra("userId", user.getId());
+                    intent.putExtra("userObj", u);
+
+                    startActivity(intent);
+                }
             }
         }
 
@@ -56,11 +66,15 @@ public class LoginActivity extends AppCompatActivity implements LoginPresenterCo
                         if (!sqlUpdated) {
                             List<User> users = UserRepository.getInstance().getUsers();
                             for (User u : users) {
-                                UserSQLRepository.getInstance(getActivity()).insertUser(u);
+                                UserSQLRepository.getInstance(getActivity()).addUser(u);
                             }
+                            // Acessa preferencias compartilhadas
                             SharedPreferences preferences = getPreferences(0);
+                            // pega o editor de preferencias
                             SharedPreferences.Editor editor = preferences.edit();
+                            // gravando true na preferencia sqlUpdated
                             editor.putBoolean("sqlUpdated", true);
+                            //confirmando a gravação nas preferencias
                             editor.commit();
                         }
                     }
@@ -71,19 +85,24 @@ public class LoginActivity extends AppCompatActivity implements LoginPresenterCo
 
         //this.presenter = new LoginPresenter(this);
         //trocando a presenter, com o mesmo contrato
-        this.presenter = new LoginPresenter(this);
-
-        findViewById(R.id.buttonLogin).setOnClickListener(
+        if (sqlUpdated) {
+            this.presenter = new LoginPresenter(this);
+        } else {
+            this.presenter = new LoginPresenter2(this);
+        }
+        View bt = findViewById(R.id.buttonLogin);
+        bt.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         presenter.checkLogin(
-                                ((TextView) findViewById(R.id.edLogin)).getText().toString(),
+                                ((EditText) findViewById(R.id.edLogin)).getText().toString(),
                                 ((TextView) findViewById(R.id.edPassword)).getText().toString()
                         );
                     }
                 }
         );
+
     }
 
     @Override

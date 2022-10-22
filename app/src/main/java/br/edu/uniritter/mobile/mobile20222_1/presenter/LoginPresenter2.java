@@ -24,8 +24,8 @@ public class LoginPresenter2 implements LoginPresenterContract.presenter{
             validLogin(u);
         }
     }
-    @Override
-    public void validLogin(User user) {
+
+    private void validLogin(User user) {
         Intent intent = new Intent(view.getActivity(), Activity2.class);
         //intent.putExtra("userId", user.getId());
         intent.putExtra("userObj", user);

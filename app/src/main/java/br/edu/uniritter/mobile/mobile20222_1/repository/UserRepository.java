@@ -21,7 +21,7 @@ import java.util.List;
 
 import br.edu.uniritter.mobile.mobile20222_1.model.User;
 
-public class UserRepository implements Listener<JSONArray>,Response.ErrorListener{
+public class UserRepository implements UserRepositoryInterface, Listener<JSONArray>,Response.ErrorListener{
     private final String TAG = "UserRepository";
     private List<User> users;
     private static UserRepository instance;
@@ -139,10 +139,11 @@ public class UserRepository implements Listener<JSONArray>,Response.ErrorListene
         }
     }
 
-
+    @Override
     public List<User> getUsers() {
         return users;
     }
+    @Override
     public User getUserById(int id) {
         User ret = null;
         for(User u : users) {
@@ -152,6 +153,8 @@ public class UserRepository implements Listener<JSONArray>,Response.ErrorListene
         }
         return ret;
     }
+
+    @Override
     public User getUserByUserLogin(String login) {
         User ret = null;
         Log.d(TAG, "getUserByUserLogin: users.size "+users.size());
@@ -163,8 +166,21 @@ public class UserRepository implements Listener<JSONArray>,Response.ErrorListene
         }
         return ret;
     }
-    public User addUser(User user) {return null;}
+
+    @Override
+    public List<User> getUsersByName(String name) {
+        return null;
+    }
+
+    @Override
+    public User addUser(User user) {
+        users.add(user);
+        // chamada rest para a API
+        return user;
+    }
+    @Override
     public User updateUser(User user) {return null;}
+    @Override
     public User removeUser(User user) {return null;}
 
 
